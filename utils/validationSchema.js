@@ -1,44 +1,52 @@
 const Joi = require("joi")
-// should be updated 
-module.exports.register = (body) => {
+
+// auth validation
+module.exports.sendOtp = (body) => {
     const schema = Joi.object({
-        name :Joi.string().min(3).label('name').required(),
-        address :Joi.string().min(10).label('address').required(),
-        email : Joi.string().email().min(3).label('email').required(),
-        password : Joi.string().min(3).label("password").required(),
-        phone : Joi.number().min(1000000000).max(9999999999).label('phone').required()
+        email : Joi.string().email().label('email').required(),
     })
     return schema.validate(body)
 }
 
+module.exports.register = (body) => {
+    const schema = Joi.object({
+        name : Joi.string().min(3).label('name').required(),
+        email : Joi.string().email().label('email').required(),
+        phone : Joi.number().min(1000000000).max(9999999999).label('phone').required(),
+        password : Joi.string().min(3).label("password").required(),
+        otp :Joi.number().label('otp').required(), //keep check that he inputs 6 digits in frontend
+    })
+    return schema.validate(body)
+}
 
 module.exports.login = (body) => {
     const schema = Joi.object({
-        email :Joi.string().email().label('email').required(),
-        password : Joi.string().min(3).label("user_password").required(),
+        email : Joi.string().email().label('email').required(),
+        phone : Joi.number().min(1000000000).max(9999999999).label('phone').required(),
+        password : Joi.string().min(3).label("password").required(),
+    }).or('email','phone')
+    return schema.validate(body)
+}
+
+// admin validation
+module.exports.select = (body) => {
+    const schema = Joi.object({
+        userIds : Joi.array().min(1) //handling empty array in frontend
     })
     return schema.validate(body)
 }
 
-module.exports.update = (body) => {
+// user validation
+module.exports.postIdea = (body) => {
     const schema = Joi.object({
-        name :Joi.string().min(3).label('name'),
-        address :Joi.string().min(10).label('address'),
-        phone : Joi.number().min(1000000000).max(9999999999).label('phone'),
-        photo : Joi.string().base64().label('photo'),
-        proof : Joi.string().base64().label('proof')
+        userRole : Joi.string().required(), //as user selects only options in frontend,
+        idea : Joi.string().min(50).required(),
+        pros:Joi.string().min(50).required(),
+        crons :Joi.string().min(50).required(),
     })
     return schema.validate(body)
 }
 
-module.exports.updateResult = (body) => {
-    const schema = Joi.object({
-        score : Joi.number().min(0).max(12).label('score').required(),
-        status : Joi.boolean().label('status').required(),
-        feedBack : Joi.number().min(0).max(2).label('feedBack').required()
-    })
-    return schema.validate(body)
-}
 
 
 

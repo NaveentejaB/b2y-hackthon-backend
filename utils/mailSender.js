@@ -12,15 +12,17 @@ const mailSender = async (email, title, body)=>{
                     pass: process.env.MAIL_PASS,  //-> User's password for authentication
                 }
         }) 
-        console.log(transporter);
         //now Send e-mails to users
         let info = await transporter.sendMail({
             from: 'naveentejasd@gmail.com',
             to:`${email}`,
                 subject: `${title}`,
                 html: `${body}`,
+            // to:'naveenteja1912@gmail.com',
+            //     subject:'test',
+            //     text:'hellloo'
         })
-        console.log(info);
+        // console.log(info);
         console.log("Info is here: ",info)
         return info
 

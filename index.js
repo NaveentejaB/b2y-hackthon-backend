@@ -63,7 +63,7 @@ app.use(cors(corsOptions));
 
 const authRoutes = require('./views/authRoutes')
 const userRoutes = require('./views/userRoutes')
-const adminRoutes = require('./views/userRoutes')
+const adminRoutes = require('./views/adminRoutes')
 
 app.use('/auth',authRoutes)
 app.use('/user',userRoutes)

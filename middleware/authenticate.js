@@ -32,10 +32,9 @@ const authenticate = async (req, res, next) => {
 
 const checkRole = (permission) =>{
     return (req, res, next) =>{
-		const token = req.headers["authorization"]
-		const decoded = jwt.decode(token)
-        const userRole = decoded.role	
-        if(permission == userRole){
+		const decoded = jwt.decode(req.headers["authorization"])
+        const role = decoded.role
+        if(permission === role){
             next()
         }else{
             return res.status(403).json({

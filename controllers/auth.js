@@ -1,19 +1,19 @@
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
 const { otpGen } = require('otp-gen-agent')
-const validator = require("../utils/validationSchema")
+const validate = require('../utils/validationSchema')
 const User = require("../models/userModel")
 const OTP = require("../models/OTPModel")
 
 // to send OTP for verification (resend OTP will be handled too)
 module.exports.sendOTP = async(req,res) => {
-    // const { error } = validator.register(req.body);
-    // console.log(error);
-    // if (error)
-    //     return res.status(400).json({ 
-    //         error: true, 
-    //         message: error.details[0].message
-    //     })
+    const { error } = validate.sendOtp(req.body);
+    console.log(error);
+    if (error)
+        return res.status(400).json({ 
+            error: true, 
+            message: error.details[0].message
+        })
     const {email} = req.body
     const checkUserEmail = await User.findOne({userEmail:email})
     if(checkUserEmail){
@@ -33,8 +33,7 @@ module.exports.sendOTP = async(req,res) => {
         otp : otp
     }).save()
     return res.status(200).json({
-        data : newEmailOtpPair,
-        message : `OTP sent successfully`,
+        message : `OTP sent successfully.`,
         error : false
     })
 
@@ -42,22 +41,22 @@ module.exports.sendOTP = async(req,res) => {
 
 // to register on successfull submission of correct OTP
 module.exports.register = async(req,res) =>{
-    // const { error } = validator.register(req.body);
-    // console.log(error);
-    // if (error)
-    //     return res.status(400).json({ 
-    //         error: true, 
-    //         message: error.details[0].message
-    //     })
+    const { error } = validate.register(req.body);
+    console.log(error);
+    if (error)
+        return res.status(400).json({ 
+            error: true, 
+            message: error.details[0].message
+        })
     const {name,email,phone,password,otp} = req.body     
-    const user = await User.findOne({$or : {userEmail:email ,userPhone:phone}})
+    const user = await User.findOne({$or:[{userEmail:email},{userPhone:phone}]})
     if(user){
         return res.status(400).json({
                 message : `user email or phone number already registered.`,
                 error : true    
             })
     }
-    const checkOTP = await OTP.findOne({$and : {email:email, otp:otp}})
+    const checkOTP = await OTP.findOne({$and : [{email:email}, {otp:otp}]})
     if(!checkOTP){
         return res.status(400).json({
             message : `invalid OTP`,
@@ -66,16 +65,18 @@ module.exports.register = async(req,res) =>{
     }  
     const salt = await bcrypt.genSalt(10)
     const hashPassword = await bcrypt.hash(password, salt)
+    const role = "admin"
     await new User({
         userName : name,
         userEmail : email,
         userPhone : phone,
-        userPassword : hashPassword
+        userPassword : hashPassword,
+        userRole : role
     }).save()
 
     const userData = await User.findOne({userEmail:email})
     
-    const payload = { id:userData._id ,email:userData.userEmail ,role :"user" }
+    const payload = { id:userData._id ,email:userData.userEmail ,role :"admin" }
 
     const accessToken = jwt.sign(
         payload,
@@ -92,7 +93,13 @@ module.exports.register = async(req,res) =>{
 
 // login the user
 module.exports.login = async(req,res) => {
-    // d:\Intern assignments\2023\Heliverse\backend\.gitignore d:\Intern assignments\2023\Heliverse\backend\index.js
+    const { error } = validate.login(req.body);
+    console.log(error);
+    if (error)
+        return res.status(400).json({ 
+            error: true, 
+            message: error.details[0].message
+        })
     const {email ,phone ,password} = req.body
     const user = await User.findOne({$and : {userEmail:email, userPhone:phone}})
     if(!user){

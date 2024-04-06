@@ -8,7 +8,7 @@ userRouter.post('/',authenticate,checkRole('user'),user.postIdea)
 
 userRouter.get('/',authenticate,checkRole('user'),user.getDetails)
 
-userRouter.post('/pdf',authenticate,checkRole('user'),user.uploadPdf)
+// userRouter.post('/pdf',authenticate,checkRole('user'),user.uploadPdf)
 
 module.exports = userRouter
 

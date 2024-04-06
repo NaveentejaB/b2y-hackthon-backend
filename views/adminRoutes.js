@@ -4,10 +4,12 @@ const {checkRole,authenticate} = require('../middleware/authenticate')
 
 const adminRouter = express.Router()
 
-adminRouter.get('/:id',authenticate(),checkRole('admin'),admin.getSpecificUser)
+adminRouter.get('/:id',authenticate,checkRole('admin'),admin.getSpecificUser)
 
-adminRouter.get('/',authenticate(),checkRole('admin'),admin.getAllUsers)
+adminRouter.get('/',authenticate,checkRole('admin'),admin.getAllUsers)
 
-adminRouter.post('/select',authenticate(),checkRole('admin'),admin.selectUsersToFinal)
+adminRouter.post('/select',authenticate,checkRole('admin'),admin.selectUsersToFinal)
+
+adminRouter.get('/final/users',authenticate,checkRole('admin'),admin.getFinalRoundUsers)
 
 module.exports = adminRouter
