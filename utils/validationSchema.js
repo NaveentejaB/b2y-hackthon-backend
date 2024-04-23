@@ -8,6 +8,7 @@ module.exports.sendOtp = (body) => {
     return schema.validate(body)
 }
 
+// for the users
 module.exports.register = (body) => {
     const schema = Joi.object({
         name : Joi.string().min(3).label('name').required(),
@@ -19,10 +20,21 @@ module.exports.register = (body) => {
     return schema.validate(body)
 }
 
+// for the admins
+module.exports.adminRegister = (body) => {
+    const schema = Joi.object({
+        name : Joi.string().min(3).label('name').required(),
+        email : Joi.string().email().label('email').required(),
+        password : Joi.string().min(3).label("password").required(),
+        otp :Joi.number().label('otp').required(), //keep check that he inputs 6 digits in frontend
+    })
+    return schema.validate(body)
+}
+
+
 module.exports.login = (body) => {
     const schema = Joi.object({
         email : Joi.string().email().label('email').required(),
-        phone : Joi.number().min(1000000000).max(9999999999).label('phone').required(),
         password : Joi.string().min(3).label("password").required(),
     }).or('email','phone')
     return schema.validate(body)

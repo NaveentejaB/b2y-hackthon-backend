@@ -24,7 +24,12 @@ module.exports.getFinalRoundUsers = async(req,res) => {
 // to get specific user
 module.exports.getSpecificUser = async(req,res) => {
     const {id} = req.params
-    const user = await User.findOne({_id:id})
+    const user = await User.findOne({_id:id.trim()})
+    if(!user)
+        return res.status(400).json({
+            message : `user with given user id not found.`,
+            error : false
+        })
     return res.status(200).json({
         data : user,
         message : `user details fetched.`,

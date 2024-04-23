@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
 const { otpGen } = require('otp-gen-agent')
 const validate = require('../utils/validationSchema')
-const User = require("../models/userModel")
+const Admin = require('../models/adminModel')
 const OTP = require("../models/OTPModel")
 
 // to send OTP for verification (resend OTP will be handled too)
@@ -15,15 +15,15 @@ module.exports.sendOTP = async(req,res) => {
             message: error.details[0].message
         })
     const {email} = req.body
-    const checkUserEmail = await User.findOne({userEmail:email})
-    if(checkUserEmail){
+    const checkAdminEmail = await Admin.findOne({adminEmail:email})
+    if(checkAdminEmail){
         return res.status(400).json({
-            message : `user email already registered.`,
+            message : `admin email already registered.Try signing in.`,
             error : true
         })
     }
     const checkOtpAndEmail = await OTP.findOne({email:email})
-    // if email is already have OTP doc. delete the old one and create new one
+    // if email is already have OTP. delete the old one and create new one
     if(checkOtpAndEmail){
         const deleteEmail = await OTP.findOneAndDelete({email:email})
     }
@@ -41,18 +41,18 @@ module.exports.sendOTP = async(req,res) => {
 
 // to register on successfull submission of correct OTP
 module.exports.register = async(req,res) =>{
-    const { error } = validate.register(req.body);
+    const { error } = validate.adminRegister(req.body);
     console.log(error);
     if (error)
         return res.status(400).json({ 
             error: true, 
             message: error.details[0].message
         })
-    const {name,email,phone,password,otp} = req.body     
-    const user = await User.findOne({$or:[{userEmail:email},{userPhone:phone}]})
-    if(user){
+    const {name,email,password,otp} = req.body     
+    const admin = await Admin.findOne({adminEmail : email})
+    if(admin){
         return res.status(400).json({
-                message : `user email or phone number already registered.`,
+                message : `admin email already registered. Try signing in.`,
                 error : true    
             })
     }
@@ -65,26 +65,25 @@ module.exports.register = async(req,res) =>{
     }  
     const salt = await bcrypt.genSalt(10)
     const hashPassword = await bcrypt.hash(password, salt)
-    const role = "admin"
-    await new User({
-        userName : name,
-        userEmail : email,
-        userPhone : phone,
-        userPassword : hashPassword
+
+    await new Admin({
+        adminEmail : email,
+        adminName : name,
+        adminPassword :hashPassword
     }).save()
 
-    const userData = await User.findOne({userEmail:email})
+    const adminData = await Admin.findOne({adminEmail : email})
     
-    const payload = { id:userData._id ,email:userData.userEmail ,role :"user" }
+    const payload = { id:adminData._id ,email:adminData.adminEmail ,role :"admin" }
 
     const accessToken = jwt.sign(
         payload,
         process.env.ACCESS_TOKEN_PRIVATE_KEY,
-        { expiresIn: "60m" }
+        { expiresIn: "120m" }
     )
     // user will be directed to the home page
     return res.status(201).json({
-            message : `user registered successfully.`,
+            message : `New admin registered successfully.`,
             accessToken : accessToken,
             error : false
         })
@@ -100,17 +99,16 @@ module.exports.login = async(req,res) => {
             message: error.details[0].message
         })
     const {email,password} = req.body
-
-    const user = await User.findOne({userEmail:email})
-    if(!user){
+    const admin = await Admin.findOne({adminEmail : email})
+    if(!admin){
         return res.status(401).json({
-            message : `user with email : ${email} does't exist.`,
+            message : `Admin with email : ${email} does't exist.`,
             error : true
         })
     }
     const verifiedPassword = await bcrypt.compare(
         password,
-        user.userPassword
+        admin.adminPassword
     )
     if (!verifiedPassword)
         return res.status(401).json({
@@ -118,16 +116,16 @@ module.exports.login = async(req,res) => {
             message: "Invalid  password" 
         })
     
-    const payload = { id:user._id ,email:user.userEmail , role :"user"}
+    const payload = { id:admin._id ,email:admin.adminEmail , role :"admin"}
 
     const accessToken = jwt.sign(
         payload,
         process.env.ACCESS_TOKEN_PRIVATE_KEY,
-        { expiresIn: "60m" }
+        { expiresIn: "120m" }
     )	
     return res.status(200).json({
         accessToken : accessToken,
         error: false,
-        message: "Logged in sucessfully",
+        message: "Admin logged in sucessfully",
     })
 }

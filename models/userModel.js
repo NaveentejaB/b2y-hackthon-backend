@@ -27,9 +27,6 @@ const userSchema = new mongoose.Schema({
     userWork : {
         type : String
     },
-    userRole : {
-        typer : String,
-    },
     userIdea : { type : String },
     ideaPros : { type : String },
     ideaCrons : { type : String }
