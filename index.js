@@ -14,7 +14,7 @@ app.use('/public', express.static('public'));
 
 
 
-const port = '0.0.0.0';
+const port = process.env.PORT || 3000;
 
 // local
 // mongoose.connect("mongodb://localhost:27017/hb2yDB",{
@@ -69,9 +69,7 @@ app.use('/auth',authRoutes)
 app.use('/user',userRoutes)
 app.use('/admin',adminRoutes)
 
-app.get('/',(req,res)=>{
-    res.send('Hello there')
-})
+
 
 app.use((err, req, res, next) => {
     console.log(err)
