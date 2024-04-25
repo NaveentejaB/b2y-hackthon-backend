@@ -14,7 +14,7 @@ app.use('/public', express.static('public'));
 
 
 
-const port = process.env.PORT || 3000;
+const port = '0.0.0.0';
 
 // local
 // mongoose.connect("mongodb://localhost:27017/hb2yDB",{
