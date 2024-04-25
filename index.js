@@ -69,6 +69,10 @@ app.use('/auth',authRoutes)
 app.use('/user',userRoutes)
 app.use('/admin',adminRoutes)
 
+app.get('/',(req,res)=>{
+    res.send('Hello there')
+})
+
 app.use((err, req, res, next) => {
     console.log(err)
     return res.status(err.status || 500).json({
