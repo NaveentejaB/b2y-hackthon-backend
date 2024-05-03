@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const validate = require('../utils/validationSchema')
 const User = require('../models/userModel')
-const mailSender = require('../utils/mailSender')
+const mailer = require('../utils/sendMails')
 const _ = require("lodash");
 
 // to post an idea
@@ -23,9 +23,12 @@ module.exports.postIdea = async(req,res) => {
         // ideaCrons : crons
     })
     const user = await User.findById(decoded)
+    console.log(user);
+    // sends mail to the user about the idea he submitted.
+    await mailer.sendMailForIdea(user.userEmail,idea)
+    // sends mail to company about new response.
+    await mailer.sendMailForTeam("naveenteja1912@gmail.com",user,idea)
 
-    await sendMailForIdea(user.userEmail,idea)
-    
     return res.status(200).json({
         message : `user idea added.`,
         error : false
@@ -49,26 +52,4 @@ module.exports.getDetails = async(req,res) => {
         message : `user details fetched`,
         data : userDetails
     })
-}
-
-
-const sendMailForIdea = async(email,idea) => {
-    try {
-		const mailResponse = await mailSender(
-			email,
-			"Idea Submission Confirmation",
-			`<p>Dear User,</p>
-            <p>Thank you for submitting your idea! We have received the following idea:</p>
-            <blockquote>
-                <p>${idea}</p>
-            </blockquote>
-            <p>We appreciate your contribution.</p>
-            <p>Regards,<br/>b2y team</p>
-            `
-		);
-		console.log("Email sent successfully: ", mailResponse);
-	} catch (error) {
-		console.log("Error occurred while sending email: ", error);
-		throw error;
-	}
 }
