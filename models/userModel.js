@@ -28,8 +28,8 @@ const userSchema = new mongoose.Schema({
         type : String
     },
     userIdea : { type : String },
-    ideaPros : { type : String },
-    ideaCrons : { type : String }
+    // ideaPros : { type : String },
+    // ideaCrons : { type : String }
 })
 
 const User = mongoose.model('User',userSchema)

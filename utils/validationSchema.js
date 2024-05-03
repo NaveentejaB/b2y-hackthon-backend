@@ -53,8 +53,9 @@ module.exports.postIdea = (body) => {
     const schema = Joi.object({
         userRole : Joi.string().required(), //as user selects only options in frontend,
         idea : Joi.string().min(50).required(),
-        pros:Joi.string().min(50).required(),
-        crons :Joi.string().min(50).required(),
+        phone : Joi.number().min(1000000000).max(9999999999).label('phone').required(),
+        // pros:Joi.string().min(50).required(),
+        // crons :Joi.string().min(50).required(),
     })
     return schema.validate(body)
 }

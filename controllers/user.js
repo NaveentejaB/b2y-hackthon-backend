@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const validate = require('../utils/validationSchema')
 const User = require('../models/userModel')
+const mailSender = require('../utils/mailSender')
 const _ = require("lodash");
 
 // to post an idea
@@ -13,13 +14,18 @@ module.exports.postIdea = async(req,res) => {
             message: error.details[0].message
         })
     const decoded = jwt.decode(req.headers["authorization"]).id.trim()
-    const {userRole,idea,pros,crons} = req.body
+    const {phone,userRole,idea} = req.body
     const updateUser = await User.findByIdAndUpdate(decoded,{
         userWork : userRole,
         userIdea : idea,
-        ideaPros : pros,
-        ideaCrons : crons
+        userPhone : phone
+        // ideaPros : pros,
+        // ideaCrons : crons
     })
+    const user = await User.findById(decoded)
+
+    await sendMailForIdea(user.userEmail,idea)
+    
     return res.status(200).json({
         message : `user idea added.`,
         error : false
@@ -43,4 +49,26 @@ module.exports.getDetails = async(req,res) => {
         message : `user details fetched`,
         data : userDetails
     })
+}
+
+
+const sendMailForIdea = async(email,idea) => {
+    try {
+		const mailResponse = await mailSender(
+			email,
+			"Idea Submission Confirmation",
+			`<p>Dear User,</p>
+            <p>Thank you for submitting your idea! We have received the following idea:</p>
+            <blockquote>
+                <p>${idea}</p>
+            </blockquote>
+            <p>We appreciate your contribution.</p>
+            <p>Regards,<br/>b2y team</p>
+            `
+		);
+		console.log("Email sent successfully: ", mailResponse);
+	} catch (error) {
+		console.log("Error occurred while sending email: ", error);
+		throw error;
+	}
 }
