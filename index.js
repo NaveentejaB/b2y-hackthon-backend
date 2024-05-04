@@ -4,10 +4,22 @@ const mongoose = require("mongoose")
 const bodyParser = require("body-parser")
 const path = require('path')
 const cors = require('cors')
+const passport = require("passport");
+const cookieSession = require("cookie-session");
+const passportStrategy = require("./utils/passport");
 require('express-async-errors')
 
 
 const app = express()
+app.use(
+	cookieSession({
+		name: "session",
+		 keys: ["teja"],
+		maxAge: 60*1000,
+	})
+);
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/public', express.static('public'));

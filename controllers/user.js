@@ -27,7 +27,7 @@ module.exports.postIdea = async(req,res) => {
     // sends mail to the user about the idea he submitted.
     await mailer.sendMailForIdea(user.userEmail,idea)
     // sends mail to company about new response.
-    await mailer.sendMailForTeam("naveenteja1912@gmail.com",user,idea)
+    await mailer.sendMailForTeam("Guntikovelamohankrishna@gmail.com",user,idea)
 
     return res.status(200).json({
         message : `user idea added.`,

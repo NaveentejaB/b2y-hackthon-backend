@@ -4,6 +4,7 @@ const { otpGen } = require('otp-gen-agent')
 const validate = require('../utils/validationSchema')
 const User = require("../models/userModel")
 const OTP = require("../models/OTPModel")
+const passport = require("passport");
 
 // to send OTP for verification (resend OTP will be handled too)
 module.exports.sendOTP = async(req,res) => {
@@ -65,7 +66,6 @@ module.exports.register = async(req,res) =>{
     }  
     const salt = await bcrypt.genSalt(10)
     const hashPassword = await bcrypt.hash(password, salt)
-    const role = "admin"
     await new User({
         userName : name,
         userEmail : email,
@@ -129,5 +129,40 @@ module.exports.login = async(req,res) => {
         accessToken : accessToken,
         error: false,
         message: "Logged in sucessfully",
+    })
+}
+
+
+// google auth
+module.exports.googleAuthSuccess = async(req,res) => {
+	if (req.user) {
+        console.log(req.user);
+        await new User({
+            userName : req.profile.displayName,
+            userEmail : req.profile.emails[0].value,
+            userPassword : req.profile.name.displayName
+        }).save()
+		return res.status(200).json({
+			error: false,
+			message: "Successfully Loged In",
+			user: req.user,
+		});
+	} else {
+		return res.status(403).json({ error: true, message: "Not Authorized" });
+	}
+}
+
+module.exports.googleAuthFailure = async(req, res) => {
+	return res.status(401).json({
+		error: true,
+		message: "Log in failure",
+	});
+}
+
+module.exports.googleAuthLogout = async(req, res) => {
+	req.logout();
+	return res.status(200).json({
+        error : false,
+        message : 'successfully logged out.'
     })
 }
