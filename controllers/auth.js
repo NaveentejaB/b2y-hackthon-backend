@@ -136,16 +136,34 @@ module.exports.login = async(req,res) => {
 // google auth
 module.exports.googleAuthSuccess = async(req,res) => {
 	if (req.user) {
-        console.log(req.user);
-        await new User({
-            userName : req.profile.displayName,
-            userEmail : req.profile.emails[0].value,
-            userPassword : req.profile.name.displayName
-        }).save()
+        console.log(req.user.emails[0].value);
+        const user = await User.find({userEmail:req.user.emails[0].value})
+        const salt = await bcrypt.genSalt(10)
+        const hashPassword = await bcrypt.hash(req.user.displayName, salt)
+        console.log(user);
+        if(user.length === 0){
+            console.log("new user");
+            const data = await new User({
+                userName : req.user.displayName,
+                userEmail : req.user.emails[0].value,
+                userPhone :0,
+                userPassword : hashPassword
+            }).save()
+            console.log(data);
+        }
+        const userData = await User.find({userEmail:req.user.emails[0].value})
+        const payload = { id:userData._id ,email:userData.userEmail , role :"user"}
+
+        const accessToken = jwt.sign(
+            payload,
+            process.env.ACCESS_TOKEN_PRIVATE_KEY,
+            { expiresIn: "60m" }
+        )	
+
 		return res.status(200).json({
 			error: false,
-			message: "Successfully Loged In",
-			user: req.user,
+            accessToken : accessToken,
+			message: "Successfully Loged In"
 		});
 	} else {
 		return res.status(403).json({ error: true, message: "Not Authorized" });
