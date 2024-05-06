@@ -140,7 +140,7 @@ module.exports.googleAuthSuccess = async(req,res) => {
         const user = await User.find({userEmail:req.user.emails[0].value})
         const salt = await bcrypt.genSalt(10)
         const hashPassword = await bcrypt.hash(req.user.displayName, salt)
-        console.log(user);
+
         if(user.length === 0){
             console.log("new user");
             const data = await new User({
@@ -149,8 +149,8 @@ module.exports.googleAuthSuccess = async(req,res) => {
                 userPhone :0,
                 userPassword : hashPassword
             }).save()
-            console.log(data);
         }
+        
         const userData = await User.find({userEmail:req.user.emails[0].value})
         const payload = { id:userData._id ,email:userData.userEmail , role :"user"}
 
