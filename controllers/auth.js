@@ -146,7 +146,7 @@ module.exports.googleAuthSuccess = async(req,res) => {
             const data = await new User({
                 userName : req.user.displayName,
                 userEmail : req.user.emails[0].value,
-                userPhone :0,
+                userPhone : 0,
                 userPassword : hashPassword
             }).save()
         }
