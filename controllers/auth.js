@@ -15,6 +15,7 @@ module.exports.sendOTP = async(req,res) => {
             error: true, 
             message: error.details[0].message
         })
+
     const {email} = req.body
     const checkUserEmail = await User.findOne({userEmail:email})
     if(checkUserEmail){
@@ -33,6 +34,7 @@ module.exports.sendOTP = async(req,res) => {
         email : email,
         otp : otp
     }).save()
+
     return res.status(200).json({
         message : `OTP sent successfully.`,
         error : false
@@ -49,7 +51,8 @@ module.exports.register = async(req,res) =>{
             error: true, 
             message: error.details[0].message
         })
-    const {name,email,phone,password,otp} = req.body     
+    const {name,email,phone,password,otp} = req.body 
+
     const user = await User.findOne({$or:[{userEmail:email},{userPhone:phone}]})
     if(user){
         return res.status(400).json({
@@ -66,6 +69,7 @@ module.exports.register = async(req,res) =>{
     }  
     const salt = await bcrypt.genSalt(10)
     const hashPassword = await bcrypt.hash(password, salt)
+
     await new User({
         userName : name,
         userEmail : email,
@@ -82,6 +86,7 @@ module.exports.register = async(req,res) =>{
         process.env.ACCESS_TOKEN_PRIVATE_KEY,
         { expiresIn: "60m" }
     )
+
     // user will be directed to the home page
     return res.status(201).json({
             message : `user registered successfully.`,
@@ -108,6 +113,7 @@ module.exports.login = async(req,res) => {
             error : true
         })
     }
+    
     const verifiedPassword = await bcrypt.compare(
         password,
         user.userPassword
