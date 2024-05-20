@@ -21,7 +21,8 @@ authRouter.get("/google", passport.authenticate("google", ["profile", "email"]))
 authRouter.get(
 	"/google/callback",
 	passport.authenticate("google", {
-		successRedirect: "/auth/login/success",
+		// successRedirect: "/auth/login/success",
+		successRedirect:process.env.CLIENT_URL_SUCCESS,
 		failureRedirect: "/auth/login/failed",
 	})
 )

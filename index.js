@@ -37,7 +37,7 @@ const port = process.env.PORT || 3000;
 
 // Configure CORS
 const corsOptions = {
-    origin: ['https://accounts.google.com','http://localhost:5173'], // Update with your frontend's URL
+    origin: '*', // Update with your frontend's URL
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Enable CORS credentials (cookies, authorization headers, etc.)
     allowedHeaders: 'Content-Type,Authorization',

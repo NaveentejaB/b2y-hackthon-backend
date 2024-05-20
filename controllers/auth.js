@@ -185,8 +185,5 @@ module.exports.googleAuthFailure = async(req, res) => {
 
 module.exports.googleAuthLogout = async(req, res) => {
 	req.logout();
-	return res.status(200).json({
-        error : false,
-        message : 'successfully logged out.'
-    })
+	res.redirect(process.env.CLIENT_URL_LOG_OUT);
 }
